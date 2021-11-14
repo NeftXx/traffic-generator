@@ -26,7 +26,7 @@ de cada juego, el número de veces para ejecutar los juegos, las solicitudes sim
 a la API para ejecutar los juegos, y el timeout, si el tiempo restante es mayor que
 este valor, el comando se detendrá.`,
 	DisableFlagsInUseLine: true,
-	Example:               `rungame -g "juego1 juego2" -p 2 -r 2 -c 2 -t 10`,
+	Example:               `rungame 192.168.1.1 --gamename "1;random|2;maximo" --players 30 --rungames 30000 --concurrence 10 --timeout 3`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if ip == "" && len(args) < 1 {
 			return errors.New("acepta 1 arg(s)")

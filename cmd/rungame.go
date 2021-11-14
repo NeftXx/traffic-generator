@@ -2,15 +2,12 @@ package cmd
 
 import (
 	"errors"
-	"strings"
 	"traffic-generator/controllers"
 
 	"github.com/spf13/cobra"
 )
 
-var ip string
-var urlNipIo string
-var isHttps bool
+var url string
 var gamename string
 var players int
 var rungames int
@@ -26,36 +23,27 @@ de cada juego, el número de veces para ejecutar los juegos, las solicitudes sim
 a la API para ejecutar los juegos, y el timeout, si el tiempo restante es mayor que
 este valor, el comando se detendrá.`,
 	DisableFlagsInUseLine: true,
-	Example:               `rungame 192.168.1.1 --gamename "1;random|2;maximo" --players 30 --rungames 30000 --concurrence 10 --timeout 3`,
+	Example:               `rungame http://localhost:50000 --gamename "1;random|2;maximo" --players 30 --rungames 30000 --concurrence 10 --timeout 3`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if ip == "" && len(args) < 1 {
+		if url == "" && len(args) < 1 {
 			return errors.New("acepta 1 arg(s)")
 		}
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		var argument string
-		if ip != "" {
-			argument = ip
+		if url != "" {
+			argument = url
 		} else {
 			argument = args[0]
 		}
-		var url strings.Builder
-		if isHttps {
-			url.WriteString("https://")
-		} else {
-			url.WriteString("http://")
-		}
-		url.WriteString(argument)
-		url.WriteString(".nip.io")
-		urlNipIo = url.String()
-		controllers.Rungame(urlNipIo, gamename, players, rungames, concurrence, timeout)
+
+		controllers.Rungame(argument, gamename, players, rungames, concurrence, timeout)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(rungameCmd)
-	rungameCmd.Flags().BoolVarP(&isHttps, "https", "s", false, "Usa https")
 	rungameCmd.Flags().StringVarP(&gamename, "gamename", "g", "", "Nombres de los juegos")
 	rungameCmd.Flags().IntVarP(&players, "players", "p", 0, "Cantidad de jugadores")
 	rungameCmd.Flags().IntVarP(&rungames, "rungames", "r", 0, "Cantidad de veces a ejecutar")

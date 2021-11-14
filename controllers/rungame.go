@@ -22,16 +22,25 @@ func Rungame(urlNipIo string, gamename string, players int, rungames int, concur
 	}
 	urls := helpers.CreateUrls(urlNipIo, gamenames)
 	length := len(urls)
-	var requestPerThread int = rungames / concurrence
+	var requestPerThread int
+	var noThread int
 
-	channels := make(chan string, concurrence)
-	for i := 0; i < concurrence; i++ {
+	if concurrence > rungames {
+		noThread = rungames
+		requestPerThread = 1
+	} else {
+		noThread = concurrence
+		requestPerThread = rungames / noThread
+	}
+
+	channels := make(chan string, noThread)
+	for i := 0; i < noThread; i++ {
 		go makePostRequest(urls, length, players, requestPerThread, i+1, channels)
 	}
 
 	count := 0
 	for elem := range channels {
-		if count == concurrence-1 {
+		if count == noThread-1 {
 			close(channels)
 		}
 		count++
@@ -45,6 +54,7 @@ func makePostRequest(urls []string, maxUrls int, players int, requestPerThread i
 		var url strings.Builder
 		url.WriteString(urls[positionRandom])
 		url.WriteString(strconv.Itoa(helpers.RandomNumber(1, players)))
+		helpers.Fetch(url.String())
 	}
 	chain := fmt.Sprintf("Thread: %d", noThread)
 	channels <- chain
